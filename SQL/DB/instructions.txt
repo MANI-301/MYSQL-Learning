@@ -1,0 +1,34 @@
+Step 1
+Download the mysqlsampledatabase.sql database from the github https://github.com/coderepositor/MYSQL-Database-Load.git.
+
+Step 2
+Create directory C:\temp and insert the downloaded file in it.
+
+Step 3
+Connect to the MySQL server using the mysql client program:
+
+mysql -u root -p
+
+Enter password: ********
+After a successful login, you’ll see the prompt that looks like this:
+
+mysql>
+Step 4
+Use the source command to load data into the MySQL Server:
+source c:/temp/mysqlsampledatabase.sql
+
+Step 5
+Use the SHOW DATABASES command to list all databases in the current server:
+
+show databases;
+The output will look like the following including the newly created classicmodels database:
+
++--------------------+
+| Database           |
++--------------------+
+| classicmodels      |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
