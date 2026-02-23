@@ -8,7 +8,8 @@
 
 -- Using tables: `customers`, `orders`, `employees`
 
--- ---
+-- --- 
+use sql_practice;
 
 -- # 🟢 🔹 INNER JOIN Exercises
 
@@ -35,7 +36,10 @@ where  o.amount > 3000;
 
 
 -- 6️⃣ Get employees and their department name (if department table existed, assume join scenario).
-
+select concat(e.first_name," ",e.last_name) as employeeName , d.department_name 
+from employees e
+inner join  department d
+using(department_id);
 
 
 -- ---
@@ -58,8 +62,9 @@ group by customer_id;
 
 
 -- 🔟 Retrieve all employees and show their department (include employees even if department is NULL).
--- select e1.*,e2.department from employees as e1  join employees as e2
--- on e1.department = e2.department where e2.department is null;
+select e.* from employees e
+left join employees ee
+using(employee_id);
 
 -- 1️⃣1️⃣ Get all customers along with total order amount (including those with NULL totals).
 select c.*,sum(o.amount) as total from customers c left join orders o
@@ -77,6 +82,7 @@ select o.*,concat(c.first_name," ",c.last_name) as Customer_name from orders o r
 
 -- 1️⃣4️⃣ Get order details even if customer city information is missing.
 select o.* from customers c right join orders o using (customer_id);
+
 -- SELECT o.*, COALESCE(c.city, 'City Unknown') AS city
 -- FROM orders o
 -- LEFT JOIN customers c USING (customer_id);
@@ -86,42 +92,84 @@ select o.* from customers c right join orders o using (customer_id);
 -- # 🟢 🔹 SELF JOIN Exercises (Employees table)
 
 -- (Assume employees table has `manager_id` column referencing `employee_id`)
-use classicmodels;
+
+
 -- 1️⃣5️⃣ Retrieve employee name along with their manager name.
 select concat(e.firstName," ",e.lastName) as employee,concat(m.firstName," ",m.lastName) as manager
 from employees e join employees m
 where m.employeeNumber = e.reportsTo;
+
 -- 1️⃣6️⃣ Find employees who report to the same manager.
 select concat(e.firstName," ",e.lastName) as employee,concat(m.firstName," ",m.lastName) as manager
 from employees e join employees m
 where m.employeeNumber = e.reportsTo
 group by manager;
+
 -- 1️⃣7️⃣ Get list of managers and count of employees reporting to each manager.
+select concat(m.firstName," ",m.lastName) as managerName ,count(e.employeenumber) 
+from employees e
+join employees m
+on m.employeeNumber=e.reportsto
+group by e.reportsto;
 
--- 1️⃣8️⃣ Retrieve employees who do not have a manager.
+-- 18. Retrieve employees who do not have a manager.
+select e.* from employees e
+join employees m
+using(employeenumber)
+where e.reportsto is null;
 
--- ---
+-- CROSS JOIN Exercises
+-- 19 Generate combinations of customers and employees 
+select e.*,c.* from employees e
+cross join customers c;
 
--- # 🟢 🔹 CROSS JOIN Exercises
+-- 20 Create all possible combinations of departments and order statuses.
+select e.department , o.status 
+from employees e
+cross join orders o;
 
--- 1️⃣9️⃣ Generate all possible combinations of customers and employees.
+-- 21 Generate combinations of customers and available job titles.
+select c.* , e.job_title
+from employees e
+cross join customers c;
 
--- 2️⃣0️⃣ Create all possible combinations of departments and order statuses.
+-- Mixed JOIN Challenge (Interview Level)
+use sql_practice;
+-- 22 .Retrieve customer name and total order amount sorted by highest total.
+select concat(c.first_name," ",last_name ) as customerName,sum(o.amount)
+from  customers c
+join orders o
+using(customer_id)
+group by(customer_id)
+order by sum(amount) desc;
 
--- 2️⃣1️⃣ Generate combinations of customers and available job titles.
+-- 23 Get customers who placed more than 2 orders.
+select c.*,count(o.customer_id) as totalOrders from customers c
+right join orders o
+using(customer_id)
+group by o.customer_id
+having totalOrders>2;
+     
+-- 24 Find customers who never placed any completed order.
+select c.* from customers c 
+join orders o using(customer_id)
+where status !='completed';
+          
+-- 25 Retrieve top 3 customers based on total purchase amount.
+select c.* ,sum(o.amount) as total_purchase from customers c
+join orders o
+using(customer_id)
+group by o.customer_id
+order by total_purchase desc
+limit 3;
 
--- ---
-
--- # 🟢 🔥 Mixed JOIN Challenge (Interview Level)
-
--- 2️⃣2️⃣ Retrieve customer name and total order amount sorted by highest total.
-
--- 2️⃣3️⃣ Get customers who placed more than 2 orders.
-
--- 2️⃣4️⃣ Find customers who never placed any completed order.
-
--- 2️⃣5️⃣ Retrieve top 3 customers based on total purchase amount.
-
--- 2️⃣6️⃣ Find employees whose salary is greater than the average salary of their department (using JOIN + subquery).
+-- 26Find employees whose salary is greater than the average salary of their department (using JOIN + subquery).
+select e.* from employees e
+join employees
+using(department) 
+group by employee_id 
+having e.salary > (select avg(salary) from employees where department = e.department);
 
 -- 2️⃣7️⃣ Get customers who placed the highest order amount.
+select c.* from customers c join orders o using(customer_id)
+order by o.amount desc limit 1; 
